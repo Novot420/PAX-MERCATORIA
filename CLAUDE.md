@@ -100,7 +100,8 @@ PAX-MERCATORIA/
 │   └── utils/
 │       └── __init__.py
 ├── tests/
-│   └── test_config.py
+│   ├── test_config.py
+│   └── test_logger.py
 ├── config.toml
 ├── main.py
 ├── requirements.txt
@@ -126,7 +127,7 @@ Git repository and GitHub remote.
 Configuration loader using TOML.
 Configuration error handling.
 Basic application logging.
-Automated tests for the configuration loader (pytest).
+Automated tests for the configuration loader and log level (pytest).
 Current config loader:
 
 Uses tomllib.
@@ -134,12 +135,15 @@ Uses pathlib.
 Loads config.toml from the project root by default, or from a given path (config_path parameter).
 Handles missing configuration files.
 Handles invalid TOML syntax.
+Validates required settings (app.name, app.version, app.environment, app.debug, app.identity.tagline).
+Allowed environments: development, production.
+Configuration errors at startup are logged and the application exits with code 1.
 Current logging system:
 
 Uses Python logging.
 Writes logs to logs/pax_mercatoria.log.
 Also outputs logs to the terminal.
-Uses INFO as the current logging level.
+Uses INFO by default, or DEBUG when debug = true in config.toml.
 The application can currently be executed from the project root using either:
 
 ```

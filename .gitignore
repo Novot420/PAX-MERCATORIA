@@ -1,5 +1,5 @@
 #Python
-pycache/
+__pycache__/
 *.py[cod]
 *.pyo
 
@@ -21,3 +21,6 @@ logs/
 
 #Operating system
 .DS_Store
+
+#Local data (may contain private user data, never commit)
+data/

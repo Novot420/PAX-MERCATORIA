@@ -20,3 +20,10 @@ def setup_logging():
     )
 
     return logging.getLogger("PAX_MERCATORIA")
+
+
+def set_log_level(debug):
+    if debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)

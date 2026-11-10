@@ -48,7 +48,7 @@ def test_initialize_database_is_safe_on_repeated_startup(tmp_path):
 
 
 def test_initialize_database_works_with_project_migrations(tmp_path):
-    assert initialize_database(tmp_path / "test.db") == 0
+    assert initialize_database(tmp_path / "test.db") == 1
 
 
 def test_initialize_database_reports_file_that_is_not_a_database(tmp_path):

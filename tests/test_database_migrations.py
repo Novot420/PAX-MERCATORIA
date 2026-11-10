@@ -161,4 +161,4 @@ def test_non_sql_files_are_ignored(tmp_path):
 
 
 def test_project_migrations_directory_is_valid():
-    assert find_migrations(MIGRATIONS_DIRECTORY) == []
+    assert [version for version, _ in find_migrations(MIGRATIONS_DIRECTORY)] == [1]

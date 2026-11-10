@@ -195,7 +195,30 @@ Prefer small, incremental and verifiable changes.
 
 9. Architecture Principles
 
-PAX MERCATORIA should eventually use a modular architecture.
+PAX MERCATORIA follows three fundamental architectural principles:
+
+Modularity – The technical foundation.
+Every Engine must have a clearly defined responsibility, internal logic and interfaces for communication with other modules.
+
+Privacy-first – A cross-cutting principle.
+Privacy, data minimization, pseudonymity and user autonomy must be considered in every architectural decision from the beginning.
+
+Decentralization – The long-term architectural direction.
+The system should be designed to support a gradual transition towards independent nodes, open protocols and distributed infrastructure.
+
+Our intended architectural evolution is:
+
+Modular Monolith → Hybrid Architecture → Decentralized Ecosystem.
+
+We will initially build a modular monolith. We will not introduce microservices or distributed infrastructure prematurely.
+
+Decentralization must serve a real technical or economic purpose, not be introduced merely for ideological reasons.
+
+Our guiding principle:
+
+“We build modularly. We protect privacy by design. We decentralize by purpose.”
+
+PAX MERCATORIA should use a modular architecture from the start.
 
 Potential core components include:
 

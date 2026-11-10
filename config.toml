@@ -1,8 +1,8 @@
 [app]
-name = “PAX MERCATORIA”
-version = “0.1.0”
-environment = “development”
+name = "PAX MERCATORIA"
+version = "0.1.0"
+environment = "development"
 debug = true
 
 [app.identity]
-tagline = “Freedom through voluntary exchange.”
+tagline = "Freedom through voluntary exchange."

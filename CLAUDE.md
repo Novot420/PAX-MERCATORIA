@@ -99,6 +99,7 @@ PAX-MERCATORIA/
 │   │   ├── initialization.py
 │   │   ├── migrations.py
 │   │   └── migrations/
+│   │       ├── 001_accounts.sql
 │   │       └── README.md
 │   ├── models/
 │   │   └── __init__.py
@@ -111,6 +112,7 @@ PAX-MERCATORIA/
 │   ├── test_database_connection.py
 │   ├── test_database_initialization.py
 │   ├── test_database_migrations.py
+│   ├── test_identity_schema.py
 │   └── test_logger.py
 ├── config.toml
 ├── main.py
@@ -163,7 +165,12 @@ The data directory is created with permissions 700 and the database file with 60
 Every connection enables foreign keys, uses sqlite3.Row and a 5-second busy timeout, and verifies that the file is a valid database.
 Schema changes are made only through numbered migrations in app/database/migrations/ (rules in the README there).
 The schema version is stored in SQLite's user_version; each migration runs atomically and is rolled back completely on error.
-No application tables exist yet (schema version 0).
+Schema version 1: migration 001_accounts.sql creates the Identity Engine tables accounts and credentials. No Identity Engine Python code exists yet.
+
+Current identity schema (owned by the Identity Engine; other modules must not query these tables directly):
+
+accounts: internal id (INTEGER PRIMARY KEY AUTOINCREMENT, never exposed), public_id (32 lowercase hex characters, generated in Python with secrets.token_hex(16)), display_name (3–32 ASCII letters, digits, _ or -; unique case-insensitively), status (active, suspended or deleted; default active), created_at (UTC, YYYY-MM-DDTHH:MM:SSZ).
+credentials (WITHOUT ROWID): account_id (primary key and foreign key to accounts.id, ON DELETE CASCADE, can never be NULL or auto-assigned), password_hash (must not be empty; hashing is not implemented yet), updated_at (UTC).
 
 Startup sequence:
 
@@ -293,7 +300,18 @@ A small custom migration system based on PRAGMA user_version.
 Engine-oriented structure: app/database/ contains shared database infrastructure only (connection, migrations, initialization). Domain logic and its tables belong to Engine packages (for example a future app/identity/).
 Privacy-first design and minimal data collection.
 
-Still open (do not assume these are decided): account recovery method, rating scale, supported currencies, account deletion rules, storage of shipping addresses, user interface, and the future of the empty models/, services/ and utils/ folders.
+Identity Engine decisions (approved):
+
+Pseudonymous accounts: registration with display name and password only; no mandatory email address or phone number.
+No email, phone number, real name, IP address or shipping address fields in the MVP.
+Public identifiers are randomly generated and never expose internal database IDs.
+Display names are limited to ASCII letters, digits, _ and - (3–32 characters) to make case-insensitive uniqueness reliable and to reduce look-alike impersonation.
+Identity tables are created by migrations in the shared app/database/migrations/ folder but are owned logically by the Identity Engine.
+public_id is an opaque public identifier, not a cryptographic identity. Future decentralized identity mechanisms must remain possible without requiring public_id to serve as a cryptographic identity.
+ASCII-only display names reduce Unicode homoglyph risks but do not eliminate all visual impersonation risks.
+Future Marketplace and Order modules must preserve historical transaction integrity independently of mutable account and listing data.
+
+Still open (do not assume these are decided): account recovery method, rating scale, supported currencies, account deletion rules, storage of shipping addresses, user interface, reserved display names and impersonation policy, support for non-ASCII display names after the MVP, and the future of the empty models/, services/ and utils/ folders.
 
 10. Security and Privacy
 

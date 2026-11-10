@@ -1,6 +1,11 @@
 import pytest
 
-from app.core.config import load_config, validate_config
+from app.core.config import (
+    BASE_DIR,
+    get_database_path,
+    load_config,
+    validate_config,
+)
 
 
 VALID_CONFIG_TOML = """
@@ -12,6 +17,9 @@ debug = false
 
 [app.identity]
 tagline = "Test tagline"
+
+[database]
+path = "data/test.db"
 """
 
 
@@ -23,7 +31,8 @@ def make_valid_config():
             "environment": "development",
             "debug": False,
             "identity": {"tagline": "Test tagline"},
-        }
+        },
+        "database": {"path": "data/test.db"},
     }
 
 
@@ -91,3 +100,46 @@ def test_validate_config_rejects_unknown_environment():
 
     with pytest.raises(ValueError, match="app.environment must be one of"):
         validate_config(config)
+
+
+def test_validate_config_rejects_missing_database_section():
+    config = make_valid_config()
+    del config["database"]
+
+    with pytest.raises(ValueError, match=r"Missing required setting: \[database\]"):
+        validate_config(config)
+
+
+def test_validate_config_rejects_non_text_database_path():
+    config = make_valid_config()
+    config["database"]["path"] = 123
+
+    with pytest.raises(ValueError, match="database.path must be of type str"):
+        validate_config(config)
+
+
+def test_validate_config_rejects_empty_database_path():
+    config = make_valid_config()
+    config["database"]["path"] = "   "
+
+    with pytest.raises(ValueError, match="database.path must not be empty"):
+        validate_config(config)
+
+
+def test_get_database_path_resolves_relative_path_from_project_root():
+    config = make_valid_config()
+
+    assert get_database_path(config) == BASE_DIR / "data" / "test.db"
+
+
+def test_get_database_path_keeps_absolute_path(tmp_path):
+    config = make_valid_config()
+    config["database"]["path"] = str(tmp_path / "custom.db")
+
+    assert get_database_path(config) == tmp_path / "custom.db"
+
+
+def test_project_database_path_is_inside_data_directory():
+    config = load_config()
+
+    assert get_database_path(config) == BASE_DIR / "data" / "pax_mercatoria.db"

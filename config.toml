@@ -6,3 +6,6 @@ debug = true
 
 [app.identity]
 tagline = "Freedom through voluntary exchange."
+
+[database]
+path = "data/pax_mercatoria.db"

@@ -42,6 +42,21 @@ def validate_config(config):
             f"{', '.join(ALLOWED_ENVIRONMENTS)}"
         )
 
+    database = require_setting(config, "database", dict, "[database]")
+    database_path = require_setting(database, "path", str, "database.path")
+
+    if not database_path.strip():
+        raise ValueError("Setting database.path must not be empty")
+
+
+def get_database_path(config):
+    database_path = Path(config["database"]["path"])
+
+    if database_path.is_absolute():
+        return database_path
+
+    return BASE_DIR / database_path
+
 
 def require_setting(section, key, expected_type, location):
     if key not in section:

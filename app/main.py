@@ -8,9 +8,6 @@ def main():
     logger.info("PAX MERCATORIA is starting.")
 
     config = load_config()
-
-    logger.info(f"Application: {config['app']['name']}")
-    logger.info(f"Version: {config['app']['version']}")
     logger.info("Configuration loaded successfully.")
 
     logger.info(f"Application: {config['app']['name']}")

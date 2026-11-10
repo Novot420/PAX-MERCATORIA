@@ -93,6 +93,13 @@ PAX-MERCATORIA/
 │   │   ├── __init__.py
 │   │   ├── config.py
 │   │   └── logger.py
+│   ├── database/
+│   │   ├── __init__.py
+│   │   ├── connection.py
+│   │   ├── initialization.py
+│   │   ├── migrations.py
+│   │   └── migrations/
+│   │       └── README.md
 │   ├── models/
 │   │   └── __init__.py
 │   ├── services/
@@ -101,6 +108,9 @@ PAX-MERCATORIA/
 │       └── __init__.py
 ├── tests/
 │   ├── test_config.py
+│   ├── test_database_connection.py
+│   ├── test_database_initialization.py
+│   ├── test_database_migrations.py
 │   └── test_logger.py
 ├── config.toml
 ├── main.py
@@ -112,9 +122,9 @@ PAX-MERCATORIA/
 
 Additional directories:
 
-logs/
+logs/ (application log, created at startup, never committed)
 docs/
-data/
+data/ (SQLite database, created at startup with owner-only permissions, never committed)
 Some of these directories may not yet exist.
 
 6. Current Implementation Status
@@ -127,7 +137,8 @@ Git repository and GitHub remote.
 Configuration loader using TOML.
 Configuration error handling.
 Basic application logging.
-Automated tests for the configuration loader and log level (pytest).
+SQLite database foundation (connection, migrations, startup initialization).
+Automated tests for the configuration loader, log level and database foundation (pytest).
 Current config loader:
 
 Uses tomllib.
@@ -144,6 +155,20 @@ Uses Python logging.
 Writes logs to logs/pax_mercatoria.log.
 Also outputs logs to the terminal.
 Uses INFO by default, or DEBUG when debug = true in config.toml.
+Current database system:
+
+Uses SQLite through Python's built-in sqlite3 module (plain SQL, no ORM).
+Database file: data/pax_mercatoria.db, configured as [database] path in config.toml (relative paths are resolved from the project root).
+The data directory is created with permissions 700 and the database file with 600 (owner only). Existing directories are never modified.
+Every connection enables foreign keys, uses sqlite3.Row and a 5-second busy timeout, and verifies that the file is a valid database.
+Schema changes are made only through numbered migrations in app/database/migrations/ (rules in the README there).
+The schema version is stored in SQLite's user_version; each migration runs atomically and is rolled back completely on error.
+No application tables exist yet (schema version 0).
+
+Startup sequence:
+
+Set up logging, load and validate configuration, set the log level, open the database and apply pending migrations.
+Database errors at startup are logged and the application exits with code 1.
 The application can currently be executed from the project root using either:
 
 ```
@@ -260,6 +285,16 @@ These are architectural concepts, not instructions to implement everything immed
 
 Keep modules logically separated and avoid unnecessary coupling.
 
+Database architecture decisions (approved):
+
+SQLite with Python's built-in sqlite3 module; plain SQL, no ORM.
+STRICT tables for all application tables.
+A small custom migration system based on PRAGMA user_version.
+Engine-oriented structure: app/database/ contains shared database infrastructure only (connection, migrations, initialization). Domain logic and its tables belong to Engine packages (for example a future app/identity/).
+Privacy-first design and minimal data collection.
+
+Still open (do not assume these are decided): account recovery method, rating scale, supported currencies, account deletion rules, storage of shipping addresses, user interface, and the future of the empty models/, services/ and utils/ folders.
+
 10. Security and Privacy
 
 Security must be considered from the beginning.
@@ -267,6 +302,8 @@ Security must be considered from the beginning.
 Important requirements:
 
 Never expose passwords, tokens, private keys or seed phrases in logs.
+Never log database contents, internal database IDs, or SQL statements together with their values.
+Always pass values to SQL with ? placeholders; never build SQL with f-strings from external input.
 Never commit secrets to Git.
 Validate external input.
 Use secure password hashing.

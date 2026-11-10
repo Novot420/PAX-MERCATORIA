@@ -99,9 +99,12 @@ PAX-MERCATORIA/
 │   │   └── __init__.py
 │   └── utils/
 │       └── __init__.py
+├── tests/
+│   └── test_config.py
 ├── config.toml
 ├── main.py
 ├── requirements.txt
+├── requirements-dev.txt
 ├── README.md
 └── .gitignore
 ```
@@ -109,7 +112,6 @@ PAX-MERCATORIA/
 Additional directories:
 
 logs/
-tests/
 docs/
 data/
 Some of these directories may not yet exist.
@@ -124,11 +126,12 @@ Git repository and GitHub remote.
 Configuration loader using TOML.
 Configuration error handling.
 Basic application logging.
+Automated tests for the configuration loader (pytest).
 Current config loader:
 
 Uses tomllib.
 Uses pathlib.
-Loads config.toml from the project root.
+Loads config.toml from the project root by default, or from a given path (config_path parameter).
 Handles missing configuration files.
 Handles invalid TOML syntax.
 Current logging system:
@@ -142,6 +145,18 @@ The application can currently be executed from the project root using either:
 ```
 python main.py
 python -m app.main
+```
+
+Development tools (pytest) are listed in requirements-dev.txt and installed with:
+
+```
+python -m pip install -r requirements-dev.txt
+```
+
+Tests are run from the project root using:
+
+```
+python -m pytest
 ```
 
 The project is in its very early foundation stage.
